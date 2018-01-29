@@ -1,74 +1,97 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic import RedirectView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, DeleteView
 
 from accounts.decorators import user_login_required
-from accounts.forms import DebtorForm
-from accounts.models import Debtor
+from accounts.forms import DebtForm
+from accounts.models import Debt
+
+from django.db.models import Q
 
 
 @user_login_required
-class DebtorTotalListView(TemplateView):
-    template_name = 'accounts/debtor_list.html'
+class DebtsTotalListView(TemplateView):
+    template_name = 'accounts/debts_list.html'
 
     def get_context_data(self, **kwargs):
-        records = []
-        dict = {}
-        dict_person = []
+        detail_debt_list = []
+        total_dept = 0
+        debtors_list = []
 
-        for deb_x in Debtor.objects.all():
-            if {'in_debt': deb_x.in_debt,
-                'owes': deb_x.owes,
-                'amount': 0}\
-                    not in dict_person:
-                dict_person.append({'in_debt': deb_x.in_debt,
-                                    'owes': deb_x.owes,
-                                    'amount': 0})
+        for debt_record in Debt.objects.filter(Q(creditor=self.request.user) | Q(debtor=self.request.user)):
 
-            if {'in_debt': deb_x.owes,
-                'owes': deb_x.in_debt,
-                'amount': 0}\
-                    not in dict_person:
-                dict_person.append({'in_debt': deb_x.owes,
-                                    'owes': deb_x.in_debt,
-                                    'amount': 0})
-
-        for deb in Debtor.objects.all():
-            records.append({'id': deb.pk,
-                            'in_debt': deb.in_debt,
-                            'owes': deb.owes,
-                            'item_name': deb.item_name,
-                            'category': deb.category,
-                            'amount': deb.amount})
-
-            if deb.in_debt in dict:
-                dict[deb.in_debt] += deb.amount
+            if debt_record.creditor == self.request.user:
+                normalize_debt = {'id': debt_record.pk,
+                                  'creditor': debt_record.creditor,
+                                  'debtor': debt_record.debtor,
+                                  'item_name': debt_record.item_name,
+                                  'category': debt_record.category,
+                                  'amount': debt_record.amount,
+                                  'status': debt_record.status,
+                                  'create_date': debt_record.create_date}
             else:
-                dict[deb.in_debt] = deb.amount
+                normalize_debt = {'id': debt_record.pk,
+                                  'creditor': debt_record.debtor,
+                                  'debtor': debt_record.creditor,
+                                  'item_name': debt_record.item_name,
+                                  'category': debt_record.category,
+                                  'amount': -1 * debt_record.amount,
+                                  'status': debt_record.status,
+                                  'create_date': debt_record.create_date}
+            detail_debt_list.append({'id': debt_record.pk,
+                                     'creditor': debt_record.creditor,
+                                     'debtor': debt_record.debtor,
+                                     'item_name': debt_record.item_name,
+                                     'category': debt_record.category,
+                                     'amount': debt_record.amount,
+                                     'status': debt_record.status,
+                                     'create_date': debt_record.create_date})
 
-            if deb.owes in dict:
-                dict[deb.owes] -= deb.amount
-            else:
-                dict[deb.owes] = -deb.amount
-
-            for row in dict_person:
-                if row['in_debt'] == deb.in_debt and row['owes'] == deb.owes:
-                    row['amount'] += deb.amount
-                if row['in_debt'] == deb.owes and row['owes'] == deb.in_debt:
-                    row['amount'] -= deb.amount
-        context = super(DebtorTotalListView, self).get_context_data(**kwargs)
-        context['records'] = records
-        context['dict'] = dict
-        context['dict_person'] = dict_person
+            if debt_record.status == 'X':
+                if not any(deptor['name'] == normalize_debt['debtor'] for deptor in debtors_list):
+                    debtors_list.append({'name': normalize_debt['debtor'], 'amount': normalize_debt['amount']})
+                else:
+                    for debtor in debtors_list:
+                        if debtor['name'] == normalize_debt['debtor']:
+                            debtor['amount'] += normalize_debt['amount']
+        context = super(DebtsTotalListView, self).get_context_data(**kwargs)
+        context['detail_debt_list'] = sorted(detail_debt_list, key=lambda debt: debt['create_date'], reverse=True)
+        context['total_dept'] = total_dept
+        context['debtors_list'] = debtors_list
         return context
 
 
 @user_login_required
+class RepaidView(RedirectView):
+    model = Debt
+    url = reverse_lazy('show')
+
+    def get(self, request, *args, **kwargs):
+        debt = get_object_or_404(Debt, pk=self.kwargs['pk'])
+        debt.status = 'A'
+        debt.save()
+        return super(RepaidView, self).get(request, *args, **kwargs)
+
+
+@user_login_required
+class CancelView(RedirectView):
+    model = Debt
+    url = reverse_lazy('show')
+
+    def get(self, request, *args, **kwargs):
+        debt = get_object_or_404(Debt, pk=self.kwargs['pk'])
+        debt.status = 'C'
+        debt.save()
+        return super(CancelView, self).get(request, *args, **kwargs)
+
+
+@user_login_required
 class DebtorDeleteView(DeleteView):
-    model = Debtor
+    model = Debt
     success_url = reverse_lazy('show')
 
 
@@ -78,14 +101,14 @@ class HomeView(TemplateView):
 
 
 @user_login_required
-class DebtorView(FormView):
-    template_name = 'accounts/debtors.html'
-    form_class = DebtorForm
+class DebtFormView(FormView):
+    template_name = 'accounts/debt_form.html'
+    form_class = DebtForm
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
         form.save()
-        return super(DebtorView, self).form_valid(form)
+        return super(DebtFormView, self).form_valid(form)
 
 
 def signup(request):

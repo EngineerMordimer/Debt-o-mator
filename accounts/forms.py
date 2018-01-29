@@ -1,9 +1,9 @@
 from django import forms
 
-from accounts.models import Debtor
+from accounts.models import Debt
 
 
-class DebtorForm(forms.ModelForm):
+class DebtForm(forms.ModelForm):
     class Meta:
-        model = Debtor
+        model = Debt
         fields = '__all__'

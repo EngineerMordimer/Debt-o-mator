@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Debtor, Category
+from .models import Debt, Category
 
-admin.site.register(Debtor)
+admin.site.register(Debt)
 admin.site.register(Category)

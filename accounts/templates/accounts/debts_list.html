@@ -1,0 +1,81 @@
+{% extends 'accounts/_base.html' %}
+{% load static %}
+{% block title %}Debts list{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="column" style="margin-top: 10%">
+            <h5>Debtors list:</h5>
+            <ul>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Debtor</th>
+                        <th>Total amount of debts</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in debtors_list %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.amount }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </ul>
+            <h5>Active debts list:</h5>
+            <ul>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Creditor</th>
+                        <th>Debtor</th>
+                        <th>For what?</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for debt in detail_debt_list %}
+                        <tr>
+                            {% if debt.status == 'X' %}
+                                <td>{{ debt.creditor }} </td>
+                                <td>{{ debt.debtor }} </td>
+                                <td>{{ debt.item_name }} </td>
+                                <td>{{ debt.amount }} </td>
+                                <td>{{ debt.create_date|date:"d.m.Y" }} </td>
+                                <td>
+                                    <a class="button button-success" href="{% url 'repaid' debt.id %}">Repaid</a>
+                                    <a class="button button-danger" href="{% url 'cancel' debt.id %}">Cancel</a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+            </ul>
+
+            <br>
+
+            <a class="button button-normal" href="{% url 'home' %}">Return</a>
+        </div>
+    </div>
+{% endblock %}

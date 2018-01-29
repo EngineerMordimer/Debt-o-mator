@@ -18,8 +18,9 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib.auth import views as auth_views
 
+from accounts.views import RepaidView, CancelView
 from . import views
-from .views import DebtorView, DebtorTotalListView, DebtorDeleteView, HomeView
+from .views import DebtFormView, DebtsTotalListView, DebtorDeleteView, HomeView
 
 urlpatterns = [
     url(r'^admin', admin.site.urls),
@@ -28,8 +29,10 @@ urlpatterns = [
     url(r'^logout', auth_views.logout,
         {'template_name': 'accounts/logout.html'}, name='logout'),
     url(r'^signup', views.signup, name='signup'),
-    url(r'^make-debt', DebtorView.as_view(), name='make-debt'),
-    url(r'^show', DebtorTotalListView.as_view(), name='show'),
+    url(r'^make-debt', DebtFormView.as_view(), name='make-debt'),
+    url(r'^show', DebtsTotalListView.as_view(), name='show'),
+    url(r'^repaid/(?P<pk>\d+)', RepaidView.as_view(), name='repaid'),
+    url(r'^cancel/(?P<pk>\d+)', CancelView.as_view(), name='cancel'),
     url(r'^delete/(?P<pk>\d+)', DebtorDeleteView.as_view(), name='delete'),
     url(r'^', HomeView.as_view(), name='home'),
 ]
