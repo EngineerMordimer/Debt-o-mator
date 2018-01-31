@@ -66,6 +66,18 @@ class DebtsTotalListView(TemplateView):
 
 
 @user_login_required
+class RenewView(RedirectView):
+    model = Debt
+    url = reverse_lazy('show')
+
+    def get(self, request, *args, **kwargs):
+        debt = get_object_or_404(Debt, pk=self.kwargs['pk'])
+        debt.status = 'X'
+        debt.save()
+        return super(RenewView, self).get(request, *args, **kwargs)
+
+
+@user_login_required
 class RepaidView(RedirectView):
     model = Debt
     url = reverse_lazy('show')

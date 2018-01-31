@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib.auth import views as auth_views
 
-from accounts.views import RepaidView, CancelView
+from accounts.views import RepaidView, CancelView, RenewView
 from . import views
 from .views import DebtFormView, DebtsTotalListView, DebtorDeleteView, HomeView
 
@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^signup', views.signup, name='signup'),
     url(r'^make-debt', DebtFormView.as_view(), name='make-debt'),
     url(r'^show', DebtsTotalListView.as_view(), name='show'),
+    url(r'^renew/(?P<pk>\d+)', RenewView.as_view(), name='renew'),
     url(r'^repaid/(?P<pk>\d+)', RepaidView.as_view(), name='repaid'),
     url(r'^cancel/(?P<pk>\d+)', CancelView.as_view(), name='cancel'),
     url(r'^delete/(?P<pk>\d+)', DebtorDeleteView.as_view(), name='delete'),

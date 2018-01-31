@@ -29,7 +29,7 @@
                     </tbody>
                 </table>
             </ul>
-            <h5>Active debts list:</h5>
+            <h5 id="debtsHeadline">All debts list:</h5>
             <ul>
                 <table>
                     <thead>
@@ -44,22 +44,23 @@
                     </thead>
                     <tbody>
                     {% for debt in detail_debt_list %}
-                        <tr>
-                            {% if debt.status == 'X' %}
-                                <td>{{ debt.creditor }} </td>
-                                <td>{{ debt.debtor }} </td>
-                                <td>{{ debt.item_name }} </td>
-                                <td>{{ debt.amount }} </td>
-                                <td>{{ debt.create_date|date:"d.m.Y" }} </td>
-                                <td>
+                        <tr class="{% if debt.status == 'X' %}{{ debt.status }}{% else %}paidDebts{% endif %}">
+                            <td>{{ debt.creditor }} </td>
+                            <td>{{ debt.debtor }} </td>
+                            <td>{{ debt.item_name }} </td>
+                            <td>{{ debt.amount }} </td>
+                            <td>{{ debt.create_date|date:"d.m.Y" }} </td>
+                            <td>
+                                {% if debt.status == 'A' %}
+                                    <a class="button button-warning" href="{% url 'renew' debt.id %}">Renew</a>
+                                {% else %}
                                     <a class="button button-success" href="{% url 'repaid' debt.id %}">Repaid</a>
                                     <a class="button button-danger" href="{% url 'cancel' debt.id %}">Cancel</a>
-                                </td>
-                            {% endif %}
+                                {% endif %}
+                            </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td>-</td>
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
@@ -76,6 +77,8 @@
             <br>
 
             <a class="button button-normal" href="{% url 'home' %}">Return</a>
+            <a class="button button-primary" id="toggleDisplayDebts" href="#"
+               onclick="toggleDebtsVisibility();return false;">Hide inactive debts</a>
         </div>
     </div>
 {% endblock %}

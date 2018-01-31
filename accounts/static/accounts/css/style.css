@@ -76,3 +76,7 @@
 .active {
     background-color: #4CAF50;
 }
+
+.paidDebts {
+    text-decoration: line-through;
+}
