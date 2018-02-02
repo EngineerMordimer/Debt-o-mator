@@ -36,7 +36,7 @@
     list-style-type: none;
     background-color: #6d8fc6;
     width: 100%;
-    bottom: auto;
+    bottom: 0;
     position: absolute;
 }
 .footer li {
