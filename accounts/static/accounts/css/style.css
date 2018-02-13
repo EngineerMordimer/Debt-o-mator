@@ -10,11 +10,14 @@
     width: 100%;
     z-index: 1000;
 }
+
 .header li {
     float: left;
     margin-bottom: 0rem;
-    <!--border-right: 1px solid #bbb;-->
+<!-- border-right: 1 px solid #bbb;
+-->
 }
+
 .header li a {
     display: block;
     color: white;
@@ -22,12 +25,15 @@
     padding: 14px 16px;
     text-decoration: none;
 }
+
 .header li a:hover:not(.active) {
     background-color: #111;
 }
+
 .header li a.active {
     background-color: #4CAF50;
 }
+
 .header li.right {
     float: right;
 }
@@ -39,11 +45,14 @@
     bottom: 0;
     position: absolute;
 }
+
 .footer li {
     float: left;
     margin-bottom: 0rem;
-    <!--border-right: 1px solid #bbb;-->
+<!-- border-right: 1 px solid #bbb;
+-->
 }
+
 .footer li a {
     display: block;
     color: white;
@@ -51,12 +60,15 @@
     padding: 4px 6px;
     text-decoration: none;
 }
+
 .footer li a:hover:not(.active) {
     background-color: #111;
 }
+
 .footer li a.active {
     background-color: #4CAF50;
 }
+
 .footer li.right {
     float: right;
 }
@@ -65,6 +77,7 @@
     .header {
         position: static;
     }
+
     .header li.right,
     .header li,
     .footer li.right,
@@ -73,10 +86,30 @@
     }
 
 }
+
 .active {
     background-color: #4CAF50;
 }
 
 .paidDebts {
     text-decoration: line-through;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#container {
+    min-height: 100%;
+    position: relative;
+}
+
+#body {
+    padding: 10px;
+    padding-bottom: 60px; /* Height of the footer */
+    max-width: 960px;
+    margin: 0 auto;
 }

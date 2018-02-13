@@ -52,12 +52,14 @@ class DebtsTotalListView(TemplateView):
                                      'create_date': debt_record.create_date})
 
             if debt_record.status == 'X':
+                total_dept += normalize_debt['amount']
                 if not any(deptor['name'] == normalize_debt['debtor'] for deptor in debtors_list):
                     debtors_list.append({'name': normalize_debt['debtor'], 'amount': normalize_debt['amount']})
                 else:
                     for debtor in debtors_list:
                         if debtor['name'] == normalize_debt['debtor']:
                             debtor['amount'] += normalize_debt['amount']
+
         context = super(DebtsTotalListView, self).get_context_data(**kwargs)
         context['detail_debt_list'] = sorted(detail_debt_list, key=lambda debt: debt['create_date'], reverse=True)
         context['total_dept'] = total_dept
